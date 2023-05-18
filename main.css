@@ -1,7 +1,7 @@
 html {
     font-family: 'Source Sans Pro', sans-serif;
     font-size: large;
-    font-weight: 270;
+    font-weight: 240;
 }
 
 a {
@@ -20,8 +20,8 @@ a:hover {
     /* margin-right: -50%; */
     /* transform: translate(-50%, -50%) ; */
     text-align: center;
-    max-width: 720px;
-    padding: 32px;
+    max-width: 630px;
+    padding: 27px;
     line-height: 1.6em;
 }
 
