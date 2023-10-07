@@ -31,7 +31,7 @@ a:hover {
     /* left: 50%; */
     /* margin-right: -50%; */
     /* transform: translate(-50%, -50%) ; */
-    max-width: 720px;
+    max-width: 1000px;
     padding: 30px;
     line-height: 1.6em;
 }
@@ -39,6 +39,10 @@ a:hover {
 .avatar {
     border-radius: 50%;
     width: 120px;
+}
+
+.gallery {
+    width: 70%;
 }
 
 .icons {
