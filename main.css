@@ -1,6 +1,6 @@
 html {
     font-family: 'Quicksand', sans-serif;
-    font-size: 1.08em;
+    font-size: 0.9em;
     font-weight: 240;
 }
 
@@ -17,7 +17,7 @@ body {
     margin:0 auto; 
     max-width: 1200px; 
     max-height: 900px; 
-    padding: 60px;
+    padding: 100px;
     font-family: 'Source Sans Pro', sans-serif;
     font-size: 1.05em;
     font-weight: 300;
