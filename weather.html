@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Trip Weather · Northeast Foliage Road Trip</title>
+<style>
+:root{
+  --bg:#f7f3ee; --card:#ffffff; --ink:#22303b; --muted:#66707a; --line:#e6ddd5;
+  --brand:#8a4b2a; --accent:#c97d55; --chip:#f3ece5; --good:#2f7d3a; --goodbg:#e9f5ec;
+  --warn:#9a6200; --warnbg:#fff4dc; --bad:#a8322a; --badbg:#fde9e7; --info:#2f5f8a; --infobg:#e8f0f8;
+  --now:#2f7d3a; --shadow:0 1px 2px rgba(0,0,0,.06),0 2px 10px rgba(0,0,0,.04);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#16181b; --card:#1f2327; --ink:#e8eaed; --muted:#9aa3ad; --line:#2f353b;
+    --brand:#e0a37f; --accent:#d48a63; --chip:#2a2f35; --good:#7fd08a; --goodbg:#1d3324;
+    --warn:#f0c060; --warnbg:#3a2f15; --bad:#ff8a80; --badbg:#3d1f1d; --info:#8cc0f0; --infobg:#1b2c3d;
+    --now:#7fd08a; --shadow:none;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+a{color:var(--brand)}
+.wrap{max-width:1100px;margin:0 auto;padding:16px 16px 60px}
+header h1{margin:0;font-size:1.45rem;color:var(--brand)}
+header .sub{color:var(--muted);font-size:.95rem}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+button,select{font:inherit;font-size:.92rem;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:7px 12px;cursor:pointer}
+button.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+@media (prefers-color-scheme: dark){button.primary{color:#16181b}}
+.status{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 2px}
+.pill{display:inline-flex;align-items:center;gap:6px;background:var(--chip);border-radius:999px;padding:4px 11px;font-size:.88rem}
+.pill.ok{background:var(--goodbg);color:var(--good)}
+.pill.warn{background:var(--warnbg);color:var(--warn)}
+.pill.bad{background:var(--badbg);color:var(--bad)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:12px 0;box-shadow:var(--shadow)}
+.panel h2{margin:0 0 6px;font-size:1.05rem}
+.heads li{margin:3px 0}
+.day{margin-top:26px}
+.dayhead{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;border-bottom:2px solid var(--accent);padding-bottom:6px;margin-bottom:10px}
+.dayhead h2{margin:0;font-size:1.25rem}
+.dayhead .tag{font-size:.85rem;color:var(--muted)}
+.daysum{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow);position:relative}
+.card.past{opacity:.55}
+.card.now{border:2px solid var(--now)}
+.card .badge{position:absolute;top:10px;right:12px;font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px}
+.badge.now{background:var(--goodbg);color:var(--good)}
+.badge.next{background:var(--infobg);color:var(--info)}
+.badge.past{background:var(--chip);color:var(--muted)}
+.card h3{margin:0 70px 0 0;font-size:1.05rem}
+.card .when{color:var(--muted);font-size:.88rem;margin-top:1px}
+.main{display:flex;align-items:center;gap:12px;margin:10px 0 6px}
+.main .ico{font-size:2.4rem;line-height:1}
+.main .t{font-size:1.9rem;font-weight:700;line-height:1}
+.main .desc{font-size:.92rem}
+.main .desc .muted{color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 10px;font-size:.88rem;margin:6px 0}
+.stats div span{display:block;color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.04em}
+.hours{display:flex;gap:6px;overflow-x:auto;padding:6px 0 4px;margin:4px 0;scrollbar-width:thin}
+.hr{flex:0 0 auto;min-width:54px;text-align:center;background:var(--chip);border-radius:8px;padding:5px 4px;font-size:.8rem}
+.hr .i{font-size:1.15rem}
+.hr .p{color:var(--info)}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}
+.chip{font-size:.8rem;border-radius:999px;padding:2px 9px;background:var(--chip)}
+.chip.good{background:var(--goodbg);color:var(--good)}
+.chip.warn{background:var(--warnbg);color:var(--warn)}
+.chip.bad{background:var(--badbg);color:var(--bad)}
+.chip.info{background:var(--infobg);color:var(--info)}
+.nowline{font-size:.86rem;color:var(--muted);border-top:1px dashed var(--line);margin-top:8px;padding-top:6px}
+.alert{background:var(--badbg);color:var(--bad);border-radius:8px;padding:6px 9px;font-size:.85rem;margin:6px 0}
+.alert.minor{background:var(--warnbg);color:var(--warn)}
+.alert details summary{cursor:pointer;font-weight:600}
+.alert .desc{white-space:pre-wrap;color:var(--ink);font-size:.82rem;margin-top:4px}
+.links{font-size:.84rem;margin-top:6px;display:flex;flex-wrap:wrap;gap:4px 12px}
+.na{color:var(--muted);font-style:italic;font-size:.9rem;margin:8px 0}
+.skeleton{color:var(--muted)}
+footer{margin-top:30px;color:var(--muted);font-size:.84rem}
+footer code{background:var(--chip);padding:1px 5px;border-radius:4px}
+.toggle-past{font-size:.85rem}
+.hidden{display:none!important}
+@media (max-width:520px){ .grid{grid-template-columns:1fr} .main .t{font-size:1.6rem} .stats{grid-template-columns:repeat(2,1fr)} }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>🍂 Trip Weather</h1>
+  <div class="sub">Northeast Fall Foliage Road Trip · Sat Oct 3 – Tue Oct 6, 2026 · every stop, in trip order</div>
+</header>
+
+<div class="bar">
+  <button class="primary" id="refresh">↻ Refresh weather</button>
+  <select id="view" title="Which days to show">
+    <option value="auto">Show: today onward (auto)</option>
+    <option value="all">Show: all 4 days</option>
+  </select>
+  <button id="here" title="Uses your device location, if your browser allows it">📍 Weather where we are</button>
+  <label class="toggle-past"><input type="checkbox" id="showPast"> Show today's earlier stops</label>
+</div>
+<div class="status" id="status"></div>
+
+<div id="herebox"></div>
+<div class="panel" id="headsup"><h2>⚠️ Heads-up</h2><div class="skeleton">Loading forecast…</div></div>
+<div id="days"></div>
+
+<footer>
+  <p>Forecast: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> (NOAA GFS/HRRR, ECMWF and other models, updated hourly). Alerts: <a href="https://www.weather.gov/" target="_blank" rel="noopener">National Weather Service</a>. All times are Eastern. Temperatures °F, wind mph, rain in inches.</p>
+  <p>Mountain stops (Mt. Mansfield, Sterling Pond, Kancamagus Pass, Whiteface) use the summit or pass location, so they run colder and windier than the valleys. Forecasts are model-based; for summit roads, check <a href="https://www.stowe.com/the-mountain/mountain-conditions/mountain-and-lift-status.aspx" target="_blank" rel="noopener">Stowe</a> and <a href="https://whiteface.com/mountain/conditions/" target="_blank" rel="noopener">Whiteface</a> status the morning of.</p>
+  <p>No signal? The page keeps the last forecast it downloaded and shows it with its age. It refreshes itself every 15 minutes while open.</p>
+  <p>Testing tip: add <code>?now=2026-10-04T08:30</code> to the address to preview how the page looks at a given trip time.</p>
+</footer>
+</div>
+
+<script>
+"use strict";
+// ---------------- Trip plan (Eastern Time) ----------------
+const TZ = "America/New_York";
+const DAYS = [
+  {n:1, date:"2026-10-03", title:"Day 1 · Sat, Oct 3", route:"Princeton → Stowe", sleep:"Stowe, VT"},
+  {n:2, date:"2026-10-04", title:"Day 2 · Sun, Oct 4", route:"Northeast Kingdom loop from Stowe", sleep:"Stowe, VT"},
+  {n:3, date:"2026-10-05", title:"Day 3 · Mon, Oct 5", route:"Kancamagus & Franconia Notch → Lake Placid", sleep:"Lake Placid, NY"},
+  {n:4, date:"2026-10-06", title:"Day 4 · Tue, Oct 6", route:"Whiteface, Keene Valley, US-9 → Princeton", sleep:"Home"}
+];
+const NWS = (lat,lon)=>`https://forecast.weather.gov/MapClick.php?lat=${lat}&lon=${lon}`;
+const STOPS = [
+  // Day 1
+  {d:1, s:"05:00", e:"07:00", name:"Princeton, NJ", note:"Departure", lat:40.3487, lon:-74.6593},
+  {d:1, s:"08:00", e:"09:30", name:"Newburgh, NY (I-84)", note:"Breakfast stop on the way", lat:41.5034, lon:-74.0104},
+  {d:1, s:"11:00", e:"12:30", name:"Brattleboro, VT (I-91)", note:"Break / gas", lat:42.8509, lon:-72.5579},
+  {d:1, s:"13:30", e:"14:30", name:"Cold Hollow Cider Mill", note:"Waterbury Center, VT", lat:44.3813, lon:-72.7199},
+  {d:1, s:"14:30", e:"16:30", name:"Stowe Toll Road · Mt. Mansfield", note:"Summit area ~3,850 ft", lat:44.5266, lon:-72.8150, summit:true, drone:false,
+     links:[["Stowe mountain status","https://www.stowe.com/the-mountain/mountain-conditions/mountain-and-lift-status.aspx"]]},
+  {d:1, s:"16:30", e:"19:30", name:"Stowe Village · Sunset Rock", note:"Village stroll & golden hour", lat:44.4654, lon:-72.6874, golden:true, drone:true},
+  // Day 2
+  {d:2, s:"06:30", e:"08:30", name:"Sterling Pond (Smugglers' Notch)", note:"Early risers · ~3,000 ft", lat:44.5560, lon:-72.7760, summit:true, early:true},
+  {d:2, s:"07:00", e:"09:30", name:"Stowe (morning)", note:"Late sleepers · group heads out ~9", lat:44.4654, lon:-72.6874},
+  {d:2, s:"10:00", e:"11:30", name:"Craftsbury Common", note:"Village green", lat:44.6540, lon:-72.3790, drone:true},
+  {d:2, s:"12:00", e:"15:00", name:"Island Pond", note:"Lunch, Lakeside Park", lat:44.8137, lon:-71.8801, drone:true},
+  {d:2, s:"15:00", e:"16:30", name:"Route 105 & Lake Willoughby", note:"Overlooks · optional lake stop", lat:44.7566, lon:-72.0573, drone:true},
+  {d:2, s:"16:30", e:"18:30", name:"Caspian Lake, Greensboro", note:"Golden hour on the way home", lat:44.5800, lon:-72.2950, golden:true, drone:true},
+  {d:2, s:"18:30", e:"23:00", name:"Stowe (evening)", note:"Dinner", lat:44.4654, lon:-72.6874},
+  // Day 3
+  {d:3, s:"05:00", e:"07:00", name:"Stowe (departure)", note:"6 AM start", lat:44.4654, lon:-72.6874},
+  {d:3, s:"08:00", e:"09:00", name:"Lincoln, NH", note:"Gas & coffee before the Kanc", lat:44.0456, lon:-71.6703},
+  {d:3, s:"09:00", e:"10:30", name:"Kancamagus Pass overlooks", note:"Hancock, Pemi, C.L. Graham · ~2,855 ft", lat:44.0300, lon:-71.4950, summit:true, drone:true},
+  {d:3, s:"10:30", e:"12:00", name:"Sabbaday Falls · Rocky Gorge · Lower Falls", note:"Eastern Kancamagus", lat:43.9970, lon:-71.3300},
+  {d:3, s:"12:00", e:"13:30", name:"Conway / North Conway, NH", note:"Lunch", lat:44.0537, lon:-71.1284},
+  {d:3, s:"14:30", e:"16:30", name:"Franconia Notch", note:"The Basin, Artists Bluff, Echo Lake", lat:44.1781, lon:-71.6950},
+  {d:3, s:"16:30", e:"17:30", name:"Littleton, NH", note:"Gas before the evening drive", lat:44.3062, lon:-71.7701},
+  {d:3, s:"18:30", e:"20:00", name:"Lake Champlain ferry (Grand Isle)", note:"24/7 crossing to Plattsburgh", lat:44.6880, lon:-73.3400,
+     links:[["Ferry status","https://ferries.com/"]]},
+  {d:3, s:"20:00", e:"23:59", name:"Lake Placid, NY", note:"Arrive Snowshoe Lodge", lat:44.2795, lon:-73.9799},
+  // Day 4
+  {d:4, s:"06:30", e:"09:30", name:"Lake Placid · Mirror Lake", note:"Early risers at sunrise; group leaves ~9:30", lat:44.2850, lon:-73.9810, drone:true},
+  {d:4, s:"09:30", e:"11:30", name:"Whiteface summit", note:"Veterans' Memorial Hwy · 4,867 ft", lat:44.3659, lon:-73.9026, summit:true,
+     links:[["Whiteface conditions & webcam","https://whiteface.com/mountain/conditions/"]]},
+  {d:4, s:"11:30", e:"13:30", name:"Keene Valley", note:"Lunch & wander", lat:44.1912, lon:-73.7868},
+  {d:4, s:"13:30", e:"15:00", name:"US-9 · Schroon Lake", note:"Scenic drive south", lat:43.8378, lon:-73.7615},
+  {d:4, s:"15:00", e:"16:00", name:"Lake George", note:"Lakefront stop", lat:43.4262, lon:-73.7123},
+  {d:4, s:"17:00", e:"18:30", name:"Kingston, NY (Thruway)", note:"Dinner break on the way", lat:41.9270, lon:-73.9974},
+  {d:4, s:"19:30", e:"21:00", name:"Princeton, NJ", note:"Home", lat:40.3487, lon:-74.6593}
+];
+STOPS.forEach((st,i)=>{st.i=i; st.date=DAYS[st.d-1].date; st.links=(st.links||[]); st.links.unshift(["NWS forecast",NWS(st.lat,st.lon)]);});
+
+// ---------------- Helpers ----------------
+const $ = s=>document.querySelector(s);
+const CACHE_KEY = "nefft-trip-weather-v1";
+const REFRESH_MS = 15*60*1000;
+function store(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function load(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):null}catch(e){return null}}
+const toMin = hhmm => {const [h,m]=hhmm.split(":").map(Number);return h*60+m;};
+
+function etNow(){
+  const q=new URLSearchParams(location.search).get("now");
+  if(q && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(q)) return {date:q.slice(0,10), mins:toMin(q.slice(11,16)), simulated:true};
+  const parts=new Intl.DateTimeFormat("en-CA",{timeZone:TZ,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",hour12:false}).formatToParts(new Date());
+  const g=t=>parts.find(p=>p.type===t).value;
+  return {date:`${g("year")}-${g("month")}-${g("day")}`, mins:(Number(g("hour"))%24)*60+Number(g("minute")), simulated:false};
+}
+function fmtHour(h){const ap=h<12?"AM":"PM";const x=h%12||12;return `${x} ${ap}`;}
+function fmtHM(mins){const h=Math.floor(mins/60)%24,m=mins%60;const ap=h<12?"AM":"PM";return `${h%12||12}${m?":"+String(m).padStart(2,"0"):""} ${ap}`;}
+function fmtTimeStr(iso){const h=+iso.slice(11,13),m=+iso.slice(14,16);return fmtHM(h*60+m);}
+function ago(ts){const s=Math.round((Date.now()-ts)/1000);if(s<90)return "just now";const m=Math.round(s/60);if(m<90)return `${m} min ago`;const h=Math.round(m/60);if(h<48)return `${h} hr ago`;return `${Math.round(h/24)} days ago`;}
+function compass(d){if(d==null)return"";return["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW"][Math.round(d/22.5)%16];}
+function daysBetween(a,b){return Math.round((Date.parse(b+"T12:00:00Z")-Date.parse(a+"T12:00:00Z"))/86400000);}
+const WMO={0:["Clear","☀️","🌙"],1:["Mostly clear","🌤️","🌙"],2:["Partly cloudy","⛅","☁️"],3:["Overcast","☁️","☁️"],45:["Fog","🌫️"],48:["Freezing fog","🌫️"],
+51:["Light drizzle","🌦️"],53:["Drizzle","🌦️"],55:["Heavy drizzle","🌧️"],56:["Freezing drizzle","🌧️"],57:["Freezing drizzle","🌧️"],
+61:["Light rain","🌦️"],63:["Rain","🌧️"],65:["Heavy rain","🌧️"],66:["Freezing rain","🧊"],67:["Freezing rain","🧊"],
+71:["Light snow","🌨️"],73:["Snow","🌨️"],75:["Heavy snow","❄️"],77:["Snow grains","🌨️"],80:["Showers","🌦️"],81:["Showers","🌧️"],82:["Heavy showers","⛈️"],
+85:["Snow showers","🌨️"],86:["Heavy snow showers","❄️"],95:["Thunderstorm","⛈️"],96:["T-storm, hail","⛈️"],99:["T-storm, hail","⛈️"]};
+function wx(code,isDay=1){const w=WMO[code]||["—","❔"];return {text:w[0], icon:(!isDay&&w[2])?w[2]:w[1]};}
+function sev(c){if(c==null)return -1;if(c>=95)return 10;if([71,73,75,77,85,86,66,67].includes(c))return 9;if([65,82,56,57].includes(c))return 8;if([63,81].includes(c))return 7;if([61,80].includes(c))return 6;if(c>=51&&c<=55)return 5;if(c===45||c===48)return 4;return c;}
+const r=x=>x==null||isNaN(x)?"–":Math.round(x);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+// ---------------- Fetching ----------------
+const HOURLY="temperature_2m,apparent_temperature,precipitation_probability,precipitation,snowfall,weather_code,cloud_cover,cloud_cover_low,visibility,wind_speed_10m,wind_gusts_10m,wind_direction_10m,relative_humidity_2m,is_day";
+const DAILY="weather_code,temperature_2m_max,temperature_2m_min,apparent_temperature_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max,sunrise,sunset,uv_index_max";
+const CURRENT="temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,cloud_cover,wind_speed_10m,wind_gusts_10m,wind_direction_10m,precipitation,is_day";
+function omURL(lats,lons){
+  return "https://api.open-meteo.com/v1/forecast?latitude="+lats.join(",")+"&longitude="+lons.join(",")+
+  "&current="+CURRENT+"&hourly="+HOURLY+"&daily="+DAILY+
+  "&timezone="+encodeURIComponent(TZ)+"&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&forecast_days=10";
+}
+async function fetchJSON(url,opts={},ms=20000){
+  const ac=new AbortController();const t=setTimeout(()=>ac.abort(),ms);
+  try{const res=await fetch(url,{...opts,signal:ac.signal});if(!res.ok)throw new Error("HTTP "+res.status);return await res.json();}
+  finally{clearTimeout(t);}
+}
+async function fetchAll(){
+  const om=await fetchJSON(omURL(STOPS.map(s=>s.lat),STOPS.map(s=>s.lon)));
+  const arr=Array.isArray(om)?om:[om];
+  // NWS alerts, one call per distinct point
+  const keys=[...new Set(STOPS.map(s=>s.lat.toFixed(3)+","+s.lon.toFixed(3)))];
+  const res=await Promise.allSettled(keys.map(k=>fetchJSON("https://api.weather.gov/alerts/active?point="+k,{headers:{Accept:"application/geo+json"}},15000)));
+  const alerts={};let alertsOk=0;
+  res.forEach((x,i)=>{ if(x.status==="fulfilled"){alertsOk++; alerts[keys[i]]=(x.value.features||[]).map(f=>{const p=f.properties||{};return {id:p.id||f.id,event:p.event,headline:p.headline,severity:p.severity,ends:p.ends||p.expires,desc:p.description,instr:p.instruction,area:p.areaDesc};});} });
+  return {ts:Date.now(), om:arr, alerts, alertsOk, alertsTotal:keys.length};
+}
+
+// ---------------- Analysis ----------------
+function analyse(st,data){
+  const om=data.om[st.i]; if(!om||!om.hourly) return null;
+  const H=om.hourly, D=om.daily;
+  const sH=Math.floor(toMin(st.s)/60), eH=Math.max(sH+1,Math.ceil(toMin(st.e)/60));
+  let idx=[]; H.time.forEach((t,k)=>{ if(t.slice(0,10)===st.date){const h=+t.slice(11,13); if(h>=sH&&h<eH) idx.push(k);} });
+  if(!idx.length) return {missing:true};
+  const pick=a=>idx.map(k=>a?a[k]:null).filter(v=>v!=null);
+  const max=a=>a.length?Math.max(...a):null, min=a=>a.length?Math.min(...a):null, avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null, sum=a=>a.reduce((x,y)=>x+y,0);
+  const codes=pick(H.weather_code); let worst=codes[0]; codes.forEach(c=>{if(sev(c)>sev(worst))worst=c;});
+  const popMax=max(pick(H.precipitation_probability));
+  if(sev(worst)>=5 && (popMax??0)<40){ // precip code but low odds: describe the typical sky instead
+    const cnt={}; codes.forEach(c=>{const k=sev(c)>=5?3:c;cnt[k]=(cnt[k]||0)+1;}); worst=+Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0];
+  }
+  const w={
+    tMin:min(pick(H.temperature_2m)), tMax:max(pick(H.temperature_2m)), feelMin:min(pick(H.apparent_temperature)),
+    pop:max(pick(H.precipitation_probability)), rain:sum(pick(H.precipitation)), snow:sum(pick(H.snowfall)),
+    wind:max(pick(H.wind_speed_10m)), gust:max(pick(H.wind_gusts_10m)), dir:pick(H.wind_direction_10m)[0],
+    cloud:avg(pick(H.cloud_cover)), low:avg(pick(H.cloud_cover_low)), vis:min(pick(H.visibility)), hum:avg(pick(H.relative_humidity_2m)),
+    code:worst, isDay:pick(H.is_day)[0]
+  };
+  const hours=idx.map(k=>({h:+H.time[k].slice(11,13),t:H.temperature_2m[k],p:H.precipitation_probability?H.precipitation_probability[k]:null,c:H.weather_code[k],d:H.is_day?H.is_day[k]:1,g:H.wind_gusts_10m[k]}));
+  let day=null; const di=D&&D.time?D.time.indexOf(st.date):-1;
+  if(di>=0) day={code:D.weather_code[di],hi:D.temperature_2m_max[di],lo:D.temperature_2m_min[di],feelLo:D.apparent_temperature_min?D.apparent_temperature_min[di]:null,
+    rain:D.precipitation_sum[di],pop:D.precipitation_probability_max?D.precipitation_probability_max[di]:null,gust:D.wind_gusts_10m_max[di],
+    sunrise:D.sunrise[di],sunset:D.sunset[di],uv:D.uv_index_max?D.uv_index_max[di]:null};
+  // golden hour: hour before sunset
+  let golden=null;
+  if(st.golden&&day&&day.sunset){
+    const sh=+day.sunset.slice(11,13); const ks=[]; H.time.forEach((t,k)=>{if(t.slice(0,10)===st.date){const h=+t.slice(11,13); if(h===sh-1||h===sh) ks.push(k);}});
+    if(ks.length){const cc=avg(ks.map(k=>H.cloud_cover[k])), lc=avg(ks.map(k=>H.cloud_cover_low?H.cloud_cover_low[k]:0)), pp=max(ks.map(k=>H.precipitation_probability?H.precipitation_probability[k]:0));
+      let label,cls;
+      if(pp>=50){label="Golden hour: rain likely";cls="warn";}
+      else if(lc>70||cc>90){label="Golden hour: overcast, soft light";cls="info";}
+      else if(cc>=20&&cc<=70){label="Golden hour: promising, with some clouds for color";cls="good";}
+      else if(cc<20){label="Golden hour: clear, clean light";cls="good";}
+      else {label="Golden hour: mixed clouds";cls="info";}
+      golden={label,cls,sunset:day.sunset};}
+  }
+  return {w,hours,day,golden,current:om.current||null};
+}
+function tips(st,a){
+  const t=[],w=a.w;
+  if(w.feelMin!=null&&w.feelMin<=32) t.push(["bad","❄️ Below freezing: frost or ice on rock & steps"]);
+  else if(w.feelMin!=null&&w.feelMin<=42) t.push(["warn","🧥 Cold: layers, hat, gloves"]);
+  if(w.snow>0.05) t.push(["bad",`🌨️ Snow possible (${w.snow.toFixed(1)}")`]);
+  if(w.pop!=null&&w.pop>=60) t.push(["bad","☔ Rain likely: rain shells"]);
+  else if(w.pop!=null&&w.pop>=30) t.push(["warn","🌦️ Chance of showers"]);
+  if(st.summit&&w.gust!=null&&w.gust>=40) t.push(["bad","💨 Very windy up top; summit roads can close"]);
+  else if(w.gust!=null&&w.gust>=28) t.push(["warn","💨 Gusty"]);
+  if(w.vis!=null&&w.vis<1000) t.push(["warn","🌫️ Fog / low visibility"]);
+  else if(st.summit&&w.low!=null&&w.low>=80) t.push(["warn","☁️ Summit likely in the clouds"]);
+  else if(st.summit&&w.low!=null&&w.low<40&&(w.pop??0)<30) t.push(["good","🏔️ Good odds of clear views"]);
+  if(st.drone){
+    if((w.wind??99)<=12&&(w.gust??99)<=20&&(w.pop??0)<30) t.push(["good","🚁 Calm enough for the drone"]);
+    else t.push(["info","🚁 Breezy or damp for the drone"]);
+  }
+  return t;
+}
+
+// ---------------- Rendering ----------------
+let DATA=null, FETCHING=false, LAST_ERR=null;
+function visibleDays(now){
+  const view=$("#view").value; const start=DAYS[0].date, end=DAYS[DAYS.length-1].date;
+  if(view==="all") return {days:DAYS,phase:"all"};
+  if(now.date<start) return {days:DAYS,phase:"before"};
+  if(now.date>end) return {days:[],phase:"after"};
+  return {days:DAYS.filter(d=>d.date>=now.date),phase:"during"};
+}
+function stopState(st,now){
+  if(st.date<now.date) return "past";
+  if(st.date>now.date) return "future";
+  if(now.mins>=toMin(st.e)) return "past";
+  if(now.mins>=toMin(st.s)) return "now";
+  return "future";
+}
+function renderStatus(now,phase){
+  const pills=[];
+  const clock=now.simulated?`Simulated: ${now.date} ${fmtHM(now.mins)}`:`Now (ET): ${new Intl.DateTimeFormat("en-US",{timeZone:TZ,weekday:"short",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}).format(new Date())}`;
+  pills.push(`<span class="pill">${esc(clock)}</span>`);
+  if(phase==="before"){const n=daysBetween(now.date,DAYS[0].date);pills.push(`<span class="pill">🚗 Trip starts in ${n} day${n===1?"":"s"}</span>`);}
+  else if(phase==="during"){const d=DAYS.find(d=>d.date===now.date);pills.push(`<span class="pill ok">📍 Day ${d.n} of 4: ${esc(d.route)}</span>`);}
+  else if(phase==="after"){pills.push(`<span class="pill">🏠 Trip complete</span>`);}
+  if(DATA){const age=Date.now()-DATA.ts;const cls=age>3*3600e3?"bad":age>REFRESH_MS*1.5?"warn":"ok";
+    pills.push(`<span class="pill ${cls}">Updated ${ago(DATA.ts)}${DATA.fromCache?" (saved copy)":""}</span>`);
+    if(DATA.alertsTotal&&DATA.alertsOk<DATA.alertsTotal) pills.push(`<span class="pill warn">Some NWS alert checks failed</span>`);}
+  if(FETCHING) pills.push(`<span class="pill">⏳ Updating…</span>`);
+  if(LAST_ERR) pills.push(`<span class="pill bad">Couldn't refresh (${esc(LAST_ERR)}). ${DATA?"Showing last saved forecast.":"Check your connection."}</span>`);
+  $("#status").innerHTML=pills.join("");
+}
+function alertHTML(list){
+  return list.map(a=>{const minor=/Minor|Unknown/.test(a.severity||"");
+    const ends=a.ends?` · until ${new Intl.DateTimeFormat("en-US",{timeZone:TZ,weekday:"short",hour:"numeric",minute:"2-digit"}).format(new Date(a.ends))}`:"";
+    return `<div class="alert ${minor?"minor":""}"><details><summary>⚠️ ${esc(a.event||"Alert")}${esc(ends)}</summary>
+      <div>${esc(a.headline||"")}</div>${a.desc?`<div class="desc">${esc(a.desc)}</div>`:""}${a.instr?`<div class="desc"><b>What to do:</b> ${esc(a.instr)}</div>`:""}</details></div>`;}).join("");
+}
+function cardHTML(st,now,isNext){
+  const state=stopState(st,now);
+  const badge=state==="now"?`<span class="badge now">Now</span>`:state==="past"?`<span class="badge past">Earlier</span>`:isNext?`<span class="badge next">Up next</span>`:"";
+  let body=`<div class="na">Loading…</div>`;
+  const key=st.lat.toFixed(3)+","+st.lon.toFixed(3);
+  const alerts=DATA&&DATA.alerts?DATA.alerts[key]||[]:[];
+  if(DATA){
+    const a=analyse(st,DATA);
+    if(!a||a.missing){ body=`<div class="na">Forecast for this date isn't in range yet. Check back closer to the day.</div>`; }
+    else{
+      const w=a.w, x=wx(w.code,w.isDay);
+      const temp=w.tMin===w.tMax||Math.round(w.tMin)===Math.round(w.tMax)?`${r(w.tMax)}°`:`${r(w.tMin)}–${r(w.tMax)}°`;
+      const hours=a.hours.map(h=>{const hx=wx(h.c,h.d);return `<div class="hr"><div>${fmtHour(h.h)}</div><div class="i">${hx.icon}</div><div><b>${r(h.t)}°</b></div><div class="p">${h.p!=null?h.p+"%":""}</div></div>`;}).join("");
+      const ch=tips(st,a); if(a.golden) ch.push([a.golden.cls,"🌅 "+a.golden.label]);
+      const day=a.day?`<div class="chips"><span class="chip">Day: ${r(a.day.lo)}° → ${r(a.day.hi)}°</span>${a.day.pop!=null?`<span class="chip">Rain chance ${a.day.pop}%</span>`:""}<span class="chip">🌅 ${fmtTimeStr(a.day.sunrise)} · 🌇 ${fmtTimeStr(a.day.sunset)}</span>${a.day.uv!=null&&a.day.uv>=6?`<span class="chip warn">UV ${r(a.day.uv)}</span>`:""}</div>`:"";
+      let nowline="";
+      if(a.current&&st.date===now.date&&state!=="past"&&!now.simulated){const c=a.current,cx=wx(c.weather_code,c.is_day);
+        nowline=`<div class="nowline">Right now there: ${cx.icon} ${r(c.temperature_2m)}° (feels ${r(c.apparent_temperature)}°), ${esc(cx.text.toLowerCase())}, wind ${r(c.wind_speed_10m)} mph ${compass(c.wind_direction_10m)} gusting ${r(c.wind_gusts_10m)}</div>`;}
+      body=`<div class="main"><div class="ico">${x.icon}</div><div><div class="t">${temp}F</div><div class="desc">${esc(x.text)} <span class="muted">· feels as low as ${r(w.feelMin)}°</span></div></div></div>
+      <div class="stats">
+        <div><span>Rain chance</span>${w.pop!=null?w.pop+"%":"–"}${w.rain>=0.01?` · ${w.rain.toFixed(2)}"`:""}</div>
+        <div><span>Wind</span>${r(w.wind)} mph ${compass(w.dir)}</div>
+        <div><span>Gusts</span>${r(w.gust)} mph</div>
+        <div><span>Cloud cover</span>${r(w.cloud)}%</div>
+        <div><span>Visibility</span>${w.vis!=null?(w.vis>=16000?"10+ mi":(w.vis/1609).toFixed(1)+" mi"):"–"}</div>
+        <div><span>Humidity</span>${r(w.hum)}%</div>
+      </div>
+      <div class="hours">${hours}</div>
+      <div class="chips">${ch.map(c=>`<span class="chip ${c[0]}">${esc(c[1])}</span>`).join("")}</div>
+      ${day}${nowline}`;
+    }
+  }
+  const links=st.links.map(l=>`<a href="${esc(l[1])}" target="_blank" rel="noopener">${esc(l[0])}</a>`).join("");
+  return `<div class="card ${state==="now"?"now":""} ${state==="past"?"past":""}" data-state="${state}">${badge}
+    <h3>${esc(st.name)}</h3><div class="when">${fmtHM(toMin(st.s))}–${fmtHM(toMin(st.e))} · ${esc(st.note)}${st.early?" · 🌅 early risers":""}</div>
+    ${alertHTML(alerts)}${body}<div class="links">${links}</div></div>`;
+}
+function headsUp(stops){
+  const items=[]; const seen=new Set();
+  if(!DATA){$("#headsup").innerHTML=`<h2>⚠️ Heads-up</h2><div class="skeleton">Waiting for the first forecast download…</div>`;return;}
+  stops.forEach(st=>{
+    const key=st.lat.toFixed(3)+","+st.lon.toFixed(3);
+    (DATA.alerts[key]||[]).forEach(al=>{if(!seen.has(al.id)){seen.add(al.id);items.push(`<li><b>NWS ${esc(al.event)}</b> near ${esc(st.name)}: ${esc(al.headline||"")}</li>`);}});
+  });
+  const flag=(label,fn)=>{const hits=stops.filter(st=>{const a=analyse(st,DATA);return a&&!a.missing&&fn(st,a);});
+    if(hits.length) items.push(`<li>${label}: ${hits.map(s=>`${esc(s.name)} (Day ${s.d})`).join(", ")}</li>`);};
+  flag("☔ <b>Rain likely</b> (≥60%)",(s,a)=>a.w.pop>=60);
+  flag("🌨️ <b>Snow possible</b>",(s,a)=>a.w.snow>0.05);
+  flag("❄️ <b>Below-freezing feel</b>",(s,a)=>a.w.feelMin<=32);
+  flag("💨 <b>Strong gusts</b> (40+ mph)",(s,a)=>a.w.gust>=40);
+  flag("🌫️ <b>Fog / poor visibility</b>",(s,a)=>a.w.vis!=null&&a.w.vis<1000);
+  flag("☁️ <b>Summit likely in cloud</b>",(s,a)=>s.summit&&a.w.low>=80);
+  $("#headsup").innerHTML=`<h2>⚠️ Heads-up for the stops shown</h2>`+(items.length?`<ul class="heads">${items.join("")}</ul>`:`<div>No active weather alerts and nothing unusual in the forecast for these stops. 🍁</div>`);
+}
+function render(){
+  const now=etNow(); const {days,phase}=visibleDays(now);
+  renderStatus(now,phase);
+  const showPast=$("#showPast").checked;
+  let shown=[];
+  let html="";
+  let nextMarked=false;
+  const daysToShow=phase==="after"?[]:days;
+  daysToShow.forEach(d=>{
+    const stops=STOPS.filter(s=>s.d===d.n);
+    const cards=stops.map(st=>{
+      const state=stopState(st,now);
+      if(state==="past"&&phase==="during"&&d.date===now.date&&!showPast) return "";
+      if(state!=="past") shown.push(st);
+      let isNext=false; if(!nextMarked&&state==="future"&&phase!=="all"){isNext=true;nextMarked=true;}
+      if(state==="now") nextMarked=true;
+      return cardHTML(st,now,isNext);
+    }).join("");
+    const rel=d.date===now.date?"Today":daysBetween(now.date,d.date)===1?"Tomorrow":"";
+    const hiddenCount=stops.filter(st=>stopState(st,now)==="past").length;
+    const note=(d.date===now.date&&!showPast&&hiddenCount&&phase==="during")?`<span class="tag">${hiddenCount} earlier stop${hiddenCount>1?"s":""} hidden</span>`:"";
+    html+=`<section class="day"><div class="dayhead"><h2>${esc(d.title)}</h2>${rel?`<span class="pill ok">${rel}</span>`:""}<span class="tag">${esc(d.route)} · sleep: ${esc(d.sleep)}</span>${note}</div>
+      <div class="grid">${cards||`<div class="na">All of today's stops are behind you. Tick "Show today's earlier stops" to see them.</div>`}</div></section>`;
+  });
+  if(phase==="after"){
+    const home=STOPS[STOPS.length-1];
+    html=`<section class="day"><div class="dayhead"><h2>🏠 Welcome home</h2><span class="tag">The trip has ended; choose "Show: all 4 days" above to look back.</span></div><div class="grid">${cardHTML({...home,date:now.date,s:"00:00",e:"23:59",note:"Today at home"},now,false)}</div></section>`;
+  }
+  $("#days").innerHTML=html;
+  headsUp(shown.length?shown:STOPS);
+}
+
+async function refresh(){
+  if(FETCHING) return; FETCHING=true; LAST_ERR=null; render();
+  try{ const d=await fetchAll(); DATA=d; store(CACHE_KEY,d); }
+  catch(e){ LAST_ERR=(e&&e.name==="AbortError")?"timed out":(e&&e.message)||"network error"; }
+  finally{ FETCHING=false; render(); }
+}
+
+// ---------------- Weather where we are (geolocation) ----------------
+$("#here").addEventListener("click",()=>{
+  const box=$("#herebox");
+  if(!navigator.geolocation){box.innerHTML=`<div class="panel">This browser can't share location.</div>`;return;}
+  box.innerHTML=`<div class="panel">📍 Finding your location…</div>`;
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    const lat=+pos.coords.latitude.toFixed(4), lon=+pos.coords.longitude.toFixed(4);
+    try{
+      const d=await fetchJSON(omURL([lat],[lon]).replace("forecast_days=10","forecast_days=2"));
+      const c=d.current, cx=wx(c.weather_code,c.is_day), H=d.hourly;
+      const nowISO=c.time.slice(0,13); let k=H.time.findIndex(t=>t.slice(0,13)===nowISO); if(k<0)k=0;
+      const next=H.time.slice(k,k+8).map((t,j)=>{const i=k+j,hx=wx(H.weather_code[i],H.is_day[i]);return `<div class="hr"><div>${fmtHour(+t.slice(11,13))}</div><div class="i">${hx.icon}</div><div><b>${r(H.temperature_2m[i])}°</b></div><div class="p">${H.precipitation_probability[i]}%</div></div>`;}).join("");
+      let al=[];try{const a=await fetchJSON(`https://api.weather.gov/alerts/active?point=${lat},${lon}`,{headers:{Accept:"application/geo+json"}},12000);al=(a.features||[]).map(f=>({id:f.id,event:f.properties.event,headline:f.properties.headline,severity:f.properties.severity,ends:f.properties.ends||f.properties.expires,desc:f.properties.description,instr:f.properties.instruction}));}catch(e){}
+      box.innerHTML=`<div class="panel"><h2>📍 Where we are right now <span class="tag" style="font-weight:400;color:var(--muted);font-size:.85rem">(${lat}, ${lon})</span></h2>
+        ${alertHTML(al)}<div class="main"><div class="ico">${cx.icon}</div><div><div class="t">${r(c.temperature_2m)}°F</div><div class="desc">${esc(cx.text)} <span class="muted">· feels ${r(c.apparent_temperature)}° · wind ${r(c.wind_speed_10m)} mph ${compass(c.wind_direction_10m)}, gusts ${r(c.wind_gusts_10m)}</span></div></div></div>
+        <div class="hours">${next}</div><div class="links"><a href="${NWS(lat,lon)}" target="_blank" rel="noopener">NWS forecast for here</a></div></div>`;
+    }catch(e){box.innerHTML=`<div class="panel">Couldn't load weather for your location (${esc(e.message||"network")}).</div>`;}
+  },err=>{box.innerHTML=`<div class="panel">Location wasn't available (${esc(err.message||"permission denied")}). Some browsers block location for files opened from the device; the trip stops below still work.</div>`;},{enableHighAccuracy:false,timeout:15000,maximumAge:300000});
+});
+
+// ---------------- Boot ----------------
+(function boot(){
+  const saved=load("nefft-view"); if(saved&&["auto","all"].includes(saved)) $("#view").value=saved;
+  $("#view").addEventListener("change",()=>{store("nefft-view",$("#view").value);render();});
+  $("#showPast").addEventListener("change",render);
+  $("#refresh").addEventListener("click",refresh);
+  const cached=load(CACHE_KEY); if(cached&&cached.om){DATA={...cached,fromCache:true};}
+  render(); refresh();
+  setInterval(()=>{ if(document.visibilityState==="visible") refresh(); },REFRESH_MS);
+  setInterval(render,60*1000);
+  document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"&&(!DATA||Date.now()-DATA.ts>REFRESH_MS)) refresh(); });
+  window.addEventListener("online",refresh);
+})();
+</script>
+</body>
+</html>
