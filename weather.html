@@ -121,8 +121,8 @@ const TZ = "America/New_York";
 const DAYS = [
   {n:1, date:"2026-10-03", title:"Day 1 · Sat, Oct 3", route:"Princeton → Stowe", sleep:"Stowe, VT"},
   {n:2, date:"2026-10-04", title:"Day 2 · Sun, Oct 4", route:"Northeast Kingdom loop from Stowe", sleep:"Stowe, VT"},
-  {n:3, date:"2026-10-05", title:"Day 3 · Mon, Oct 5", route:"Kancamagus & Franconia Notch → Lake Placid", sleep:"Lake Placid, NY"},
-  {n:4, date:"2026-10-06", title:"Day 4 · Tue, Oct 6", route:"Whiteface, Keene Valley, US-9 → Princeton", sleep:"Home"}
+  {n:3, date:"2026-10-05", title:"Day 3 · Mon, Oct 5", route:"Sterling Pond → ferry → Lake Placid → Mount Arab sunset", sleep:"Lake Placid, NY"},
+  {n:4, date:"2026-10-06", title:"Day 4 · Tue, Oct 6", route:"Whiteface, High Falls Gorge, Mt. Jo → Princeton", sleep:"Home"}
 ];
 const NWS = (lat,lon)=>`https://forecast.weather.gov/MapClick.php?lat=${lat}&lon=${lon}`;
 const STOPS = [
@@ -142,26 +142,25 @@ const STOPS = [
   {d:2, s:"15:00", e:"16:30", name:"Route 105 & Lake Willoughby", note:"Overlooks · optional lake stop", lat:44.7566, lon:-72.0573, drone:true},
   {d:2, s:"16:30", e:"18:30", name:"Caspian Lake, Greensboro", note:"Golden hour on the way home", lat:44.5800, lon:-72.2950, golden:true, drone:true},
   {d:2, s:"18:30", e:"23:00", name:"Stowe (evening)", note:"Dinner", lat:44.4654, lon:-72.6874},
-  // Day 3
-  {d:3, s:"05:00", e:"07:00", name:"Stowe (departure)", note:"6 AM start", lat:44.4654, lon:-72.6874},
-  {d:3, s:"08:00", e:"09:00", name:"Lincoln, NH", note:"Gas & coffee before the Kanc", lat:44.0456, lon:-71.6703},
-  {d:3, s:"09:00", e:"10:30", name:"Kancamagus Pass overlooks", note:"Hancock, Pemi, C.L. Graham · ~2,855 ft", lat:44.0300, lon:-71.4950, summit:true, drone:true},
-  {d:3, s:"10:30", e:"12:00", name:"Sabbaday Falls · Rocky Gorge · Lower Falls", note:"Eastern Kancamagus", lat:43.9970, lon:-71.3300},
-  {d:3, s:"12:00", e:"13:30", name:"Conway / North Conway, NH", note:"Lunch", lat:44.0537, lon:-71.1284},
-  {d:3, s:"14:30", e:"16:30", name:"Franconia Notch", note:"The Basin, Artists Bluff, Echo Lake", lat:44.1781, lon:-71.6950},
-  {d:3, s:"16:30", e:"17:30", name:"Littleton, NH", note:"Gas before the evening drive", lat:44.3062, lon:-71.7701},
-  {d:3, s:"18:30", e:"20:00", name:"Lake Champlain ferry (Grand Isle)", note:"24/7 crossing to Plattsburgh", lat:44.6880, lon:-73.3400,
+  // Day 3 (revised)
+  {d:3, s:"06:30", e:"07:30", name:"Stowe (check-out)", note:"Load the car", lat:44.4654, lon:-72.6874},
+  {d:3, s:"07:30", e:"09:45", name:"Sterling Pond (Smugglers' Notch)", note:"Morning hike · ~3,000 ft", lat:44.5560, lon:-72.7760, summit:true},
+  {d:3, s:"11:00", e:"12:00", name:"Burlington / South Burlington", note:"Lunch", lat:44.4759, lon:-73.2121},
+  {d:3, s:"12:00", e:"13:15", name:"Charlotte–Essex ferry", note:"Every 30 min until 5 PM", lat:44.3110, lon:-73.2860,
      links:[["Ferry status","https://ferries.com/"]]},
-  {d:3, s:"20:00", e:"23:59", name:"Lake Placid, NY", note:"Arrive Snowshoe Lodge", lat:44.2795, lon:-73.9799},
-  // Day 4
-  {d:4, s:"06:30", e:"09:30", name:"Lake Placid · Mirror Lake", note:"Early risers at sunrise; group leaves ~9:30", lat:44.2850, lon:-73.9810, drone:true},
-  {d:4, s:"09:30", e:"11:30", name:"Whiteface summit", note:"Veterans' Memorial Hwy · 4,867 ft", lat:44.3659, lon:-73.9026, summit:true,
+  {d:3, s:"14:00", e:"14:45", name:"Cascade Lakes viewpoint", note:"Rt 73 pull-off", lat:44.2240, lon:-73.8750},
+  {d:3, s:"14:45", e:"16:20", name:"Lake Placid · Mirror Lake & check-in", note:"Kayak or loop walk, then Snowshoe Lodge at 4", lat:44.2850, lon:-73.9810, drone:true},
+  {d:3, s:"17:00", e:"19:15", name:"Mount Arab fire tower", note:"Sunset ~6:30 · ~2,525 ft · headlamps", lat:44.2140, lon:-74.5930, summit:true, golden:true, drone:true},
+  {d:3, s:"20:00", e:"23:00", name:"Lake Placid (dinner & lodge)", note:"Back for the night", lat:44.2795, lon:-73.9799},
+  // Day 4 (revised)
+  {d:4, s:"06:30", e:"08:30", name:"Cobble Hill · Mirror Lake", note:"Early risers at sunrise", lat:44.2900, lon:-73.9800, early:true, drone:true},
+  {d:4, s:"08:30", e:"10:15", name:"Whiteface summit", note:"Veterans' Memorial Hwy · 4,867 ft", lat:44.3659, lon:-73.9026, summit:true,
      links:[["Whiteface conditions & webcam","https://whiteface.com/mountain/conditions/"]]},
-  {d:4, s:"11:30", e:"13:30", name:"Keene Valley", note:"Lunch & wander", lat:44.1912, lon:-73.7868},
-  {d:4, s:"13:30", e:"15:00", name:"US-9 · Schroon Lake", note:"Scenic drive south", lat:43.8378, lon:-73.7615},
-  {d:4, s:"15:00", e:"16:00", name:"Lake George", note:"Lakefront stop", lat:43.4262, lon:-73.7123},
-  {d:4, s:"17:00", e:"18:30", name:"Kingston, NY (Thruway)", note:"Dinner break on the way", lat:41.9270, lon:-73.9974},
-  {d:4, s:"19:30", e:"21:00", name:"Princeton, NJ", note:"Home", lat:40.3487, lon:-74.6593}
+  {d:4, s:"10:30", e:"11:30", name:"High Falls Gorge", note:"Wilmington Notch, Rt 86", lat:44.3367, lon:-73.8696},
+  {d:4, s:"11:45", e:"12:45", name:"Lake Placid village", note:"Lunch", lat:44.2795, lon:-73.9799},
+  {d:4, s:"13:00", e:"15:15", name:"Mt. Jo (Heart Lake)", note:"~2,876 ft · on the way home", lat:44.1870, lon:-73.9660, summit:true},
+  {d:4, s:"18:30", e:"19:30", name:"Kingston, NY (Thruway)", note:"Dinner break on the way", lat:41.9270, lon:-73.9974},
+  {d:4, s:"21:00", e:"22:00", name:"Princeton, NJ", note:"Home", lat:40.3487, lon:-74.6593}
 ];
 STOPS.forEach((st,i)=>{st.i=i; st.date=DAYS[st.d-1].date; st.links=(st.links||[]); st.links.unshift(["NWS forecast",NWS(st.lat,st.lon)]);});
 
